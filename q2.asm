@@ -10,14 +10,20 @@ section .text
 
 _main:
     ;load the second element of the array into EAX
-    mov eax, [numbers + 8]
-
+    mov eax, [numbers + 4]
+; bug 1: i mistakenloy typed in 8 
+;fix: i need the second element so i have to use 4.
     ;set EBX to 4 for multiplication
-    mov ebx, 5
+    mov ebx, 4 
+    ;bug2: typed in 5
+    ;fix: typed it back to 4
+    mul  ebx
+    
+    ;bug3: i accidently put incorrect division value
+    ;fix:;fix: the assesment requires me to multiply the second element by 4 not 5.
     ;multiply EAX by EBX using unsigned multiplication
-    imul eax, ebx
     ;set EBX to 8 for division
-    mov ebx, 4
+    mov ebx, 8
 
     ;divide the calculated value by EBX
     div ebx
