@@ -76,3 +76,4 @@ _done:
     xor   edi, edi 
     ; exit code 0
     syscall
+    ;bug: its still not giving any output even tho the assembler and everything is working just fine
