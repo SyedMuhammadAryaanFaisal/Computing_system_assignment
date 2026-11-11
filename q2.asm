@@ -20,7 +20,7 @@ _main:
     mul  ebx
     
     ;bug3: i accidently put incorrect division value
-    ;fix:;fix: the assesment requires me to multiply the second element by 4 not 5.
+    ;fix: the assesment requires me to multiply the second element by 4 not 5.
     ;multiply EAX by EBX using unsigned multiplication
     ;set EBX to 8 for division
     mov ebx, 8
@@ -28,9 +28,12 @@ _main:
     ;divide the calculated value by EBX
     div ebx
     ;store the quotient back into the second array element
-    mov [numbers + 8], ebx
-    ;copy the calculated result into ECX
-    mov ecx, eax
+    mov [numbers + 4], eax
+    ;bug4: i had inputed the value as 8
+    ;fix:i had to put 8
+    ;bug5: i used ebx instead of eax to store result
+    ;fix: changed ebx to eax contains the quotient
+
 
     ;set the exit system call number
     mov rax, 0x2000001
