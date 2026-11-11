@@ -1,0 +1,73 @@
+; B[i] = (A[i]*3 + 1) + (C[i]*2 + 1) + (A[i] + C[i]) / 2
+default rel     ; use RIP-relative addressing (required on macOS)
+global _main
+global _done    ; exported so the debugger can break on it
+
+section .data
+A db 2,4,6,8,10,12,14,16,18,20   ; input array A (unsigned 8-bit elements)
+C db 4,6,8,10,12,14,16,18,20,22  ; input array C (unsigned 8-bit elements)
+
+section .bss
+B resb 5 ; output array B, one byte per result
+
+section .text
+_main:
+    lea  r8,  [A] ; r8  = address of A
+    lea  r9,  [C] 
+    ; r9  = address of C
+    lea  rdi, [B]
+    ; rdi = address of B
+    xor  esi, esi 
+    ; esi = i = 0, the loop index
+
+.loop:
+    ;term 1: A[i]*3 + 1
+    movzx eax, byte [r8 + rsi]
+    ; load A[i], zero-extended to 32 bits (unsigned)
+    mov   ebx, 3 
+    ; multiplier
+    mul   ebx 
+    ; EDX:EAX = A[i] * 3
+    inc   eax 
+    ; add the +1
+    mov   ecx, eax 
+    ; ECX holds the running total
+
+    ;term 2: C[i]*2 + 1
+    movzx eax, byte [r9 + rsi]; load C[i], zero-extended
+    mov   ebx, 2 ; multiplier
+    mul   ebx
+    ; EDX:EAX = C[i] * 2
+    mov   ecx, eax 
+    ; add this term into the running total
+
+    ;term 3: (A[i] + C[i]) / 2 
+    movzx eax, byte [r8 + rsi] ; load A[i]
+    movzx ebx, byte [r9 + rsi]  
+    ; load C[i]
+    add   eax, ebx
+    ; EAX = A[i] + C[i]
+    shr   eax, 1
+    ; divide by 2
+    add   ecx, eax
+    ; add quotient to the running total
+
+    ;store the result
+    mov   [rdi + rsi], ch
+    ; B[i] = result (fits in one byte)
+
+    ;loop control
+    inc   esi 
+    ; i++
+    cmp   esi, 9
+    ; compare i with the limit
+    jb    .loop
+    ; repeat while i is below the limit (i = 0..9)
+
+_done:
+    ;exit(0) via the macOS BSD syscall
+    mov   eax, 0x2000001
+    ; syscall number for exit (0x2000000 + 1)
+    xor   edi, edi 
+    ; exit code 0
+    syscall
