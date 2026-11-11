@@ -1,45 +1,67 @@
-;Question 2: Assembly Array Calculation.
 
+; Question 2: Assembly Array Calculation.
 
 section .data
-    ;declare four unsigned integer values in an array
+    ; Declare four unsigned integer values in an array
     numbers dd 8, 16, 24, 32
+
+    ; Change 1: Added a result variable to store the printable answer.
+    ; Explanation: The result variable will hold the ASCII character for 8
+    ; followed by 10, which represents a new line.
+    result db 0, 10
 
 section .text
     global _main
 
 _main:
-    ;load the second element of the array into EAX
-    mov eax, [numbers + 4]
-; bug 1: i mistakenloy typed in 8 
-;fix: i need the second element so i have to use 4.
-    ;set EBX to 4 for multiplication
-    mov ebx, 4 
-    ;bug2: typed in 5
-    ;fix: typed it back to 4
-    mul  ebx
-    
-    ;bug3: i accidently put incorrect division value
-    ;fix: the assesment requires me to multiply the second element by 4 not 5.
-    ;multiply EAX by EBX using unsigned multiplication
-    ;set EBX to 8 for division
+    ; Load the second element of the array into EAX
+    lea r8, [rel numbers]
+    mov eax, [r8 + 4]
+
+    ; Bug 1: I mistakenly typed in 8.
+    ; Fix: I need the second element, so I have to use 4.
+
+    ; Set EBX to 4 for multiplication
+    mov ebx, 4
+
+    ; Bug 2: I typed in 5.
+    ; Fix: Changed it back to 4.
+    mul ebx
+
+    ; Bug 3: I accidentally used the incorrect division value.
+    ; Fix: Changed the division value to 8.
+
+    ; Set EBX to 8 for division
     mov ebx, 8
 
-    ;divide the calculated value by EBX
+    ; Divide the calculated value by EBX
     div ebx
-    ;store the quotient back into the second array element
-    mov [numbers + 4], eax
-    ;bug4: i had inputed the value as 8
-    ;fix:i had to put 8
-    ;bug5: i used ebx instead of eax to store result
-    ;fix: changed ebx to eax contains the quotient
 
+    ; Store the quotient back into the second array element
+    mov [r8 + 4], eax
 
-    ;set the exit system call number
-    mov rax, 0x2000001
-    ;set the exit status to zero
+    ; Bug 4: I originally used the wrong array offset.
+    ; Fix: Used +4 to access the second element.
+
+    ; Bug 5: I originally used EBX instead of EAX.
+    ; Fix: Used EAX because it contains the quotient.
+
+    ; Change 2: Convert the numerical answer into an ASCII character.
+    ; Explanation: Adding 48 converts the number 8 into its ASCII value.
+    add eax, 48
+    mov [rel result], al
+
+    ; Change 3: Added code to display the answer in the termin.
+    ; Explanation: The write system call displays the contents of result.
+    mov rax, 0x2000004
     mov rdi, 1
-    ;execute the system call
+    lea rsi, [rel result]
+    mov rdx, 2
     syscall
 
-;the code is complete but seems like i have made an error somewhere will do further working on it
+    ; Change 4: Restored the normal exit status to zero.
+    ; Explanation: The program now prints the answer instead of using
+    ; the calculated value as its exit status.
+    mov rax, 0x2000001
+    mov rdi, 0
+    syscall
