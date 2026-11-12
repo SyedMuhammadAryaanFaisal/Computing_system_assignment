@@ -60,12 +60,16 @@ _main:
     add   ecx, eax
     ; add quotient to the running total
     ;store the result
-    mov   [rdi + rsi], ch
+    mov   [rdi + rsi], cl
+    ;bug:"mov [rdi + rsi], ch" stored bits of 8-15 of ecx instead of the actual result
+    ;fix: now store "cl" the low byte of ecx which holds the result
     ; B[i] = result (fits in one byte)
     ;loop control
     inc   esi 
     ; i++
-    cmp   esi, 9
+    cmp   esi, 10
+    ;bug: "cmp esi,9" with jb exits when i reaches 9 so the loop only ran 9 times (i=0...8) and b[9] was never calculated
+    ;fix: cvompare against 10, so the loop runs for i=0...9 and exits when i reaches 10
     ; compare i with the limit
     jb    .loop
     ; repeat while i is below the limit (i = 0..9)
