@@ -11,7 +11,7 @@ section .bss
 B resb 10 ; output array B, one byte per result
 ;bugs:B was declared with "resb 5", reserving only 5 bytes, but the loop writes up to 10 results, anything past the 5th byte lands outside B 
 ; fix:reserve 10 bytes (one per element, i = 0..9) with "resb 10".
-
+ outbuf resb 4 ; added this here so i could finally print the output
 section .text
 _main:
     lea  r8,  [A] ; r8  = address of A
@@ -75,6 +75,43 @@ _main:
     ; repeat while i is below the limit (i = 0..9)
 
 _done:
+    ;print all 10 results stored in B
+    lea r12, [rel B]
+    xor r13d, r13d
+.print_loop:
+cmp r13d,10
+jae .exit
+; Load B[i]
+    movzx eax, byte [r12 + r13]
+
+    ; Convert number to decimal
+    lea rsi, [rel outbuf + 3]
+    mov byte [rsi], 10
+    dec rsi
+
+    mov ebx, 10
+
+.convert:
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    mov [rsi], dl
+    dec rsi
+    test eax, eax
+    jnz .convert
+    inc rsi
+    ; Print number
+    lea rdx, [rel outbuf + 4]
+    sub rdx, rsi
+    mov eax, 0x2000004
+    mov edi, 1
+    syscall
+
+    inc r13d
+    jmp .print_loop
+    ; i added these to be anle to finally print the out put 
+
+.exit:
     ;exit(0) via the macOS BSD syscall
     mov   eax, 0x2000001
     ; syscall number for exit (0x2000000 + 1)
@@ -82,3 +119,4 @@ _done:
     ; exit code 0
     syscall
     ;bug: its still not giving any output even tho the assembler and everything is working just fine
+    ;fix: i had to put in an entire print code 
