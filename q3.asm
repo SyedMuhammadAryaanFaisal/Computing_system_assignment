@@ -34,7 +34,6 @@ _main:
     ; add the +1
     mov ecx, eax 
     ; ECX holds the running total
-
     ;term 2: C[i]*2 + 1
     movzx eax, byte [r9 + rsi]; load C[i], zero-extended
     mov   ebx, 2 ; multiplier
@@ -43,24 +42,26 @@ _main:
     inc eax ;adds the +1
     ; bugs: the "+ 1" in (C[i]*2 + 1) was never added, term 1 has its"inc eax" but term 2 went straight from the multiply to combining the result
     ; fix:  add "inc eax" right after the multiply, as term 1 does.
-    mov   ecx, eax 
+    add ecx, eax 
+    ;bug:"mov ecx, eax" overwrote the running total in ecx
+    ;fix: now using "add ecx, eax"
     ; add this term into the running total
-
     ;term 3: (A[i] + C[i]) / 2 
     movzx eax, byte [r8 + rsi] ; load A[i]
     movzx ebx, byte [r9 + rsi]  
     ; load C[i]
     add   eax, ebx
     ; EAX = A[i] + C[i]
-    shr   eax, 1
-    ; divide by 2
+    xor edx, edx
+    mov ebx, 2
+    div ebx
+    ;bug: "shr eax, 1" does the division with a shift, the assignment requires the div instruction
+    ;fix: use unsigned div, div divides "edx:edx" by the operand so "edx" must be zero first
     add   ecx, eax
     ; add quotient to the running total
-
     ;store the result
     mov   [rdi + rsi], ch
     ; B[i] = result (fits in one byte)
-
     ;loop control
     inc   esi 
     ; i++
